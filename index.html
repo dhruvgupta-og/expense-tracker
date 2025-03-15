@@ -15,6 +15,9 @@
         body {
             background-color: #f0f2f5;
             transition: background-color 0.3s ease;
+            font-size: 14px;
+            line-height: 1.6;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         body[data-bs-theme="dark"] {
@@ -22,56 +25,66 @@
         }
 
         .container {
-            max-width: 1000px;
-            margin-top: 2rem;
+            max-width: 100%;
+            margin-top: 1rem;
+            padding: 0.5rem;
         }
 
         .expense-form {
-            background-color: var(--bs-body-bg);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            transition: all 0.3s ease;
-        }
-
-        .expense-form:hover {
-            transform: translateY(-5px);
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
         }
 
         .expense-list {
-            margin-top: 2rem;
-            background-color: var(--bs-body-bg);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 0;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin: 1rem 0;
         }
 
         .stat-card {
             background-color: var(--bs-body-bg);
-            padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .stat-card:hover {
-            transform: translateY(-3px);
+        .stat-card i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .stat-card-content {
+            text-align: right;
+        }
+
+        .stat-card h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            color: var(--bs-secondary);
+        }
+
+        .stat-card h2 {
+            font-size: 1.2rem;
+            margin: 0;
+            font-weight: 600;
         }
 
         .chart-container {
-            background-color: var(--bs-body-bg);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            margin: 2rem 0;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            height: 300px;
         }
 
         .btn-primary {
@@ -91,109 +104,156 @@
             z-index: 1000;
         }
 
-        @media (max-width: 768px) {
+        .form-control, .form-select {
+            font-size: 16px;
+            height: 42px;
+        }
+
+        textarea.form-control {
+            height: auto;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .table-mobile-view tr {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+            background: var(--bs-body-bg);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .table-mobile-view td {
+            display: flex;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--bs-border-color-translucent);
+            align-items: center;
+        }
+
+        .table-mobile-view td[data-label]::before {
+            content: attr(data-label);
+            font-weight: 600;
+            margin-right: auto;
+        }
+
+        .search-filter-container {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bs-body-bg);
+            padding: 1rem;
+            border-bottom: 1px solid var(--bs-border-color);
+        }
+
+        @media (min-width: 576px) {
+            body {
+                font-size: 15px;
+            }
+
             .container {
-                margin-top: 1rem;
-                padding: 0 10px;
-            }
-
-            .stats-container {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-
-            .stat-card {
                 padding: 1rem;
             }
 
-            .expense-form {
-                padding: 15px;
-                margin-bottom: 1rem;
-            }
-
-            .expense-list {
-                padding: 15px;
-            }
-
-            .chart-container {
-                padding: 15px;
-                margin: 1rem 0;
-            }
-
-            .d-flex.gap-2 {
-                flex-direction: column;
-                gap: 0.5rem !important;
-            }
-
-            .table-responsive {
-                margin: 0 -15px;
-            }
-
-            .table {
-                font-size: 0.9rem;
-            }
-
-            .table td, .table th {
-                padding: 0.5rem;
-            }
-
-            .badge {
-                white-space: normal;
-                text-align: left;
-            }
-
-            .form-label {
-                margin-bottom: 0.3rem;
-            }
-
-            .mb-3 {
-                margin-bottom: 0.8rem !important;
-            }
-
-            .theme-toggle {
-                top: 10px;
-                right: 10px;
-                padding: 0.3rem 0.6rem;
-            }
-
-            .table-mobile-view td {
-                display: flex;
-                padding: 0.5rem;
-                border: none;
-            }
-
-            .table-mobile-view td::before {
-                content: attr(data-label);
-                font-weight: bold;
-                width: 40%;
-                margin-right: 1rem;
-            }
-
-            #expenseChart {
-                height: 300px !important;
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        @media (max-width: 576px) {
-            h1 {
+        @media (min-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                max-width: 960px;
+                margin: 2rem auto;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+            }
+
+            .stat-card {
+                padding: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stat-card i {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .stat-card-content {
+                text-align: center;
+            }
+
+            .stat-card h4 {
+                font-size: 1rem;
+            }
+
+            .stat-card h2 {
                 font-size: 1.5rem;
             }
 
-            h2 {
-                font-size: 1.3rem;
+            .expense-form {
+                padding: 2rem;
             }
 
-            h3 {
-                font-size: 1.2rem;
+            .chart-container {
+                padding: 2rem;
+                height: 400px;
             }
 
-            h4 {
-                font-size: 1.1rem;
+            .table-mobile-view {
+                display: table;
             }
 
+            .table-mobile-view tr {
+                display: table-row;
+                margin: 0;
+                box-shadow: none;
+            }
+
+            .table-mobile-view td {
+                display: table-cell;
+                padding: 1rem;
+            }
+
+            .table-mobile-view td[data-label]::before {
+                display: none;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                max-width: 1140px;
+            }
+        }
+
+        [data-bs-theme="dark"] {
+            .stat-card, .expense-form, .expense-list, .chart-container {
+                background-color: var(--bs-dark);
+                border: 1px solid var(--bs-border-color);
+            }
+        }
+
+        @media (hover: none) {
             .btn {
-                padding: 0.375rem 0.75rem;
-                font-size: 0.9rem;
+                padding: 0.75rem 1rem;
+            }
+
+            .form-control, .form-select, .btn {
+                min-height: 44px;
+            }
+        }
+
+        @supports(padding: max(0px)) {
+            .container {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
             }
         }
     </style>
@@ -211,17 +271,26 @@
         
         <!-- Stats Cards -->
         <div class="stats-container">
-            <div class="stat-card text-center">
-                <h4>Total Expenses</h4>
-                <h2>₹<span id="totalAmount">0</span></h2>
+            <div class="stat-card">
+                <i class="bi bi-wallet"></i>
+                <div class="stat-card-content">
+                    <h4>Total Expenses</h4>
+                    <h2>₹<span id="totalAmount">0</span></h2>
+                </div>
             </div>
-            <div class="stat-card text-center">
-                <h4>This Month</h4>
-                <h2>₹<span id="monthlyAmount">0</span></h2>
+            <div class="stat-card">
+                <i class="bi bi-calendar-month"></i>
+                <div class="stat-card-content">
+                    <h4>This Month</h4>
+                    <h2>₹<span id="monthlyAmount">0</span></h2>
+                </div>
             </div>
-            <div class="stat-card text-center">
-                <h4>Today</h4>
-                <h2>₹<span id="todayAmount">0</span></h2>
+            <div class="stat-card">
+                <i class="bi bi-clock"></i>
+                <div class="stat-card-content">
+                    <h4>Today</h4>
+                    <h2>₹<span id="todayAmount">0</span></h2>
+                </div>
             </div>
         </div>
 
@@ -286,21 +355,23 @@
 
         <!-- Expense List -->
         <div class="expense-list">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                <h3 class="mb-2 mb-md-0"><i class="bi bi-list-ul"></i> Recent Expenses</h3>
-                <div class="d-flex gap-2 flex-grow-1 flex-md-grow-0">
-                    <input type="text" class="form-control" id="searchExpense" placeholder="Search...">
-                    <select class="form-select" id="filterCategory">
-                        <option value="">All</option>
-                        <option value="books">Books & Supplies</option>
-                        <option value="food">Food & Dining</option>
-                        <option value="transport">Transportation</option>
-                        <option value="entertainment">Entertainment</option>
-                        <option value="utilities">Utilities</option>
-                        <option value="shopping">Shopping</option>
-                        <option value="health">Health</option>
-                        <option value="others">Others</option>
-                    </select>
+            <div class="search-filter-container">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                    <h3 class="mb-2 mb-md-0"><i class="bi bi-list-ul"></i> Recent Expenses</h3>
+                    <div class="d-flex gap-2 flex-grow-1 flex-md-grow-0">
+                        <input type="text" class="form-control" id="searchExpense" placeholder="Search...">
+                        <select class="form-select" id="filterCategory">
+                            <option value="">All Categories</option>
+                            <option value="books">Books & Supplies</option>
+                            <option value="food">Food & Dining</option>
+                            <option value="transport">Transportation</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="health">Health</option>
+                            <option value="others">Others</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="table-responsive">
@@ -329,3 +400,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
