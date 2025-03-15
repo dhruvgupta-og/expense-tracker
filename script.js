@@ -24,6 +24,17 @@ const goalsProgress = document.getElementById('goalsProgress');
 const recurringList = document.getElementById('recurringList');
 const insights = document.getElementById('insights');
 
+// Add after variable declarations
+const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+const authMessage = document.getElementById('authMessage');
+const userProfileBtn = document.getElementById('userProfileBtn');
+const userEmail = document.getElementById('userEmail');
+
+let currentUser = null;
+let unsubscribeSnapshot = null;
+
 // Initialize expenses array from localStorage or empty array
 let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
 
@@ -1020,3 +1031,300 @@ displayExpenses = function() {
     originalDisplayExpenses();
     enhanceMobileTableView();
 };
+
+// Firebase Auth Listeners
+auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    if (user) {
+        // User is signed in
+        userProfileBtn.style.display = 'block';
+        userEmail.textContent = user.email;
+        authModal.hide();
+        
+        // Subscribe to real-time updates
+        subscribeToExpenses();
+        subscribeToGoals();
+        subscribeToRecurring();
+    } else {
+        // User is signed out
+        userProfileBtn.style.display = 'none';
+        authModal.show();
+        
+        // Unsubscribe from real-time updates
+        if (unsubscribeSnapshot) {
+            unsubscribeSnapshot();
+        }
+    }
+});
+
+// Auth Functions
+loginBtn.addEventListener('click', async () => {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+    
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+        showAlert('Login successful!', 'success');
+    } catch (error) {
+        authMessage.className = 'alert alert-danger';
+        authMessage.textContent = error.message;
+    }
+});
+
+registerBtn.addEventListener('click', async () => {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+    
+    try {
+        await auth.createUserWithEmailAndPassword(email, password);
+        showAlert('Registration successful!', 'success');
+    } catch (error) {
+        authMessage.className = 'alert alert-danger';
+        authMessage.textContent = error.message;
+    }
+});
+
+userProfileBtn.addEventListener('click', () => {
+    if (confirm('Do you want to logout?')) {
+        auth.signOut();
+        showAlert('Logged out successfully!', 'info');
+    }
+});
+
+// Firestore Data Management
+async function subscribeToExpenses() {
+    if (!currentUser) return;
+    
+    // Subscribe to expenses collection
+    unsubscribeSnapshot = db.collection('users').doc(currentUser.uid)
+        .collection('expenses')
+        .orderBy('date', 'desc')
+        .onSnapshot((snapshot) => {
+            expenses = [];
+            snapshot.forEach((doc) => {
+                expenses.push({ id: doc.id, ...doc.data() });
+            });
+            displayExpenses();
+            updateStatistics();
+        }, (error) => {
+            console.error("Error fetching expenses:", error);
+            showAlert('Error syncing expenses', 'danger');
+        });
+}
+
+// Modified saveExpenses function
+async function saveExpenses() {
+    if (!currentUser) {
+        localStorage.setItem('expenses', JSON.stringify(expenses));
+        updateStatistics();
+        return;
+    }
+    
+    try {
+        const batch = db.batch();
+        const userRef = db.collection('users').doc(currentUser.uid);
+        
+        // Delete all existing expenses
+        const existingExpenses = await userRef.collection('expenses').get();
+        existingExpenses.forEach((doc) => {
+            batch.delete(doc.ref);
+        });
+        
+        // Add all current expenses
+        expenses.forEach((expense) => {
+            const expenseRef = userRef.collection('expenses').doc(expense.id.toString());
+            batch.set(expenseRef, expense);
+        });
+        
+        await batch.commit();
+        updateStatistics();
+    } catch (error) {
+        console.error("Error saving expenses:", error);
+        showAlert('Error saving expenses', 'danger');
+    }
+}
+
+// Goals Management with Firestore
+async function subscribeToGoals() {
+    if (!currentUser) return;
+    
+    db.collection('users').doc(currentUser.uid)
+        .collection('goals')
+        .onSnapshot((snapshot) => {
+            goals = [];
+            snapshot.forEach((doc) => {
+                goals.push({ id: doc.id, ...doc.data() });
+            });
+            updateGoals();
+        });
+}
+
+async function saveGoal() {
+    const category = document.getElementById('goalCategory').value;
+    const amount = parseFloat(document.getElementById('goalAmount').value);
+    
+    if (amount && amount > 0) {
+        const goal = {
+            id: Date.now().toString(),
+            category,
+            amount,
+            progress: 0
+        };
+        
+        if (currentUser) {
+            try {
+                const userRef = db.collection('users').doc(currentUser.uid);
+                
+                // Remove existing goal for the same category
+                const existingGoals = await userRef.collection('goals')
+                    .where('category', '==', category)
+                    .get();
+                
+                const batch = db.batch();
+                existingGoals.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                
+                // Add new goal
+                batch.set(userRef.collection('goals').doc(goal.id), goal);
+                await batch.commit();
+                
+                bootstrap.Modal.getInstance(document.getElementById('goalsModal')).hide();
+                showAlert('Goal added successfully!', 'success');
+            } catch (error) {
+                console.error("Error saving goal:", error);
+                showAlert('Error saving goal', 'danger');
+            }
+        } else {
+            goals = goals.filter(g => g.category !== category);
+            goals.push(goal);
+            localStorage.setItem('expenseGoals', JSON.stringify(goals));
+            updateGoals();
+            bootstrap.Modal.getInstance(document.getElementById('goalsModal')).hide();
+            showAlert('Goal added successfully!', 'success');
+        }
+    }
+}
+
+// Recurring Expenses with Firestore
+async function subscribeToRecurring() {
+    if (!currentUser) return;
+    
+    db.collection('users').doc(currentUser.uid)
+        .collection('recurring')
+        .orderBy('dueDate')
+        .onSnapshot((snapshot) => {
+            recurringExpenses = [];
+            snapshot.forEach((doc) => {
+                recurringExpenses.push({ id: doc.id, ...doc.data() });
+            });
+            updateRecurring();
+        });
+}
+
+async function saveRecurring() {
+    const title = document.getElementById('recurringTitle').value;
+    const amount = parseFloat(document.getElementById('recurringAmount').value);
+    const category = document.getElementById('recurringCategory').value;
+    const frequency = document.getElementById('recurringFrequency').value;
+    const dueDate = document.getElementById('recurringDueDate').value;
+    
+    if (title && amount && amount > 0 && dueDate) {
+        const recurring = {
+            id: Date.now().toString(),
+            title,
+            amount,
+            category,
+            frequency,
+            dueDate,
+            lastPaid: null
+        };
+        
+        if (currentUser) {
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('recurring')
+                    .doc(recurring.id)
+                    .set(recurring);
+                
+                bootstrap.Modal.getInstance(document.getElementById('recurringModal')).hide();
+                showAlert('Recurring expense added successfully!', 'success');
+            } catch (error) {
+                console.error("Error saving recurring expense:", error);
+                showAlert('Error saving recurring expense', 'danger');
+            }
+        } else {
+            recurringExpenses.push(recurring);
+            localStorage.setItem('recurringExpenses', JSON.stringify(recurringExpenses));
+            updateRecurring();
+            bootstrap.Modal.getInstance(document.getElementById('recurringModal')).hide();
+            showAlert('Recurring expense added successfully!', 'success');
+        }
+    }
+}
+
+// Modified delete functions
+async function deleteExpense(id) {
+    if (confirm('Are you sure you want to delete this expense?')) {
+        if (currentUser) {
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('expenses')
+                    .doc(id.toString())
+                    .delete();
+                showAlert('Expense deleted successfully!', 'danger');
+            } catch (error) {
+                console.error("Error deleting expense:", error);
+                showAlert('Error deleting expense', 'danger');
+            }
+        } else {
+            expenses = expenses.filter(expense => expense.id !== id);
+            saveExpenses();
+            showAlert('Expense deleted successfully!', 'danger');
+        }
+    }
+}
+
+async function deleteGoal(id) {
+    if (confirm('Are you sure you want to delete this goal?')) {
+        if (currentUser) {
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('goals')
+                    .doc(id.toString())
+                    .delete();
+                showAlert('Goal deleted successfully!', 'danger');
+            } catch (error) {
+                console.error("Error deleting goal:", error);
+                showAlert('Error deleting goal', 'danger');
+            }
+        } else {
+            goals = goals.filter(goal => goal.id !== id);
+            localStorage.setItem('expenseGoals', JSON.stringify(goals));
+            updateGoals();
+            showAlert('Goal deleted successfully!', 'danger');
+        }
+    }
+}
+
+async function deleteRecurring(id) {
+    if (confirm('Are you sure you want to delete this recurring expense?')) {
+        if (currentUser) {
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('recurring')
+                    .doc(id.toString())
+                    .delete();
+                showAlert('Recurring expense deleted successfully!', 'danger');
+            } catch (error) {
+                console.error("Error deleting recurring expense:", error);
+                showAlert('Error deleting recurring expense', 'danger');
+            }
+        } else {
+            recurringExpenses = recurringExpenses.filter(r => r.id !== id);
+            localStorage.setItem('recurringExpenses', JSON.stringify(recurringExpenses));
+            updateRecurring();
+            showAlert('Recurring expense deleted successfully!', 'danger');
+        }
+    }
+}
