@@ -256,47 +256,493 @@
                 padding-right: max(1rem, env(safe-area-inset-right));
             }
         }
+
+        /* Enhanced UI Elements */
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h4 {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-card h2 {
+            color: white;
+        }
+
+        .stat-card i {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Budget Progress Bar */
+        .budget-section {
+            background: var(--bs-body-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .progress {
+            height: 1rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+        }
+
+        /* Category Pills */
+        .category-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .category-pill {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: var(--bs-gray-200);
+        }
+
+        .category-pill.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Export Button */
+        .export-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Date Range Picker */
+        .date-range {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Enhanced Form */
+        .expense-form {
+            background: var(--bs-body-bg);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .form-floating {
+            margin-bottom: 1rem;
+        }
+
+        .form-floating > label {
+            padding-left: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        /* Enhanced Mobile View */
+        @media (max-width: 768px) {
+            .gradient-bg {
+                border-radius: 0 0 20px 20px;
+                padding: 1.5rem 0;
+            }
+
+            .export-btn {
+                bottom: 10px;
+                right: 10px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* Floating Action Menu */
+        .floating-menu {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .main-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .sub-buttons {
+            position: absolute;
+            bottom: 70px;
+            right: 5px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sub-buttons .btn {
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .floating-menu.active .sub-buttons {
+            display: flex;
+        }
+
+        .floating-menu.active .sub-buttons .btn {
+            transform: scale(1);
+        }
+
+        .floating-menu.active .main-btn {
+            transform: rotate(45deg);
+        }
+
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .goal-item, .recurring-item {
+            padding: 10px;
+        }
+
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 576px) {
+            .gradient-bg {
+                padding: 1rem 0;
+            }
+
+            .stat-card {
+                padding: 0.75rem;
+            }
+
+            .stat-card i {
+                font-size: 1.25rem;
+            }
+
+            .stat-card h4 {
+                font-size: 0.8rem;
+            }
+
+            .stat-card h2 {
+                font-size: 1.1rem;
+            }
+
+            .budget-section {
+                padding: 1rem;
+            }
+
+            .date-range {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .category-pills {
+                gap: 0.25rem;
+            }
+
+            .category-pill {
+                padding: 0.35rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .chart-container {
+                height: 250px;
+                padding: 0.5rem;
+            }
+
+            .expense-form {
+                padding: 1rem;
+            }
+
+            .floating-menu {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .main-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .sub-buttons .btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .goal-item, .recurring-item {
+                padding: 0.75rem;
+            }
+
+            .insight-card {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Better Table Responsiveness */
+        @media (max-width: 768px) {
+            .table-mobile-view td {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .table-mobile-view td[data-label]::before {
+                font-size: 0.8rem;
+                opacity: 0.8;
+            }
+
+            .search-filter-container {
+                padding: 0.75rem;
+            }
+
+            .search-filter-container .d-flex {
+                gap: 0.5rem;
+            }
+
+            .form-control, .form-select {
+                font-size: 14px;
+                height: 38px;
+            }
+        }
+
+        /* Enhanced Touch Interactions */
+        @media (hover: none) {
+            .btn, .category-pill, .goal-item, .recurring-item {
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .btn:active, .category-pill:active {
+                transform: scale(0.95);
+            }
+
+            .stat-card:active {
+                transform: translateY(-2px);
+            }
+
+            .table-mobile-view tr:active {
+                background-color: var(--bs-gray-100);
+            }
+        }
+
+        /* Better Landscape Mode */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .gradient-bg {
+                padding: 0.5rem 0;
+            }
+
+            .stats-container {
+                margin: 0.5rem 0;
+            }
+
+            .chart-container {
+                height: 200px;
+            }
+
+            .floating-menu {
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+
+        /* Better Dark Mode */
+        [data-bs-theme="dark"] {
+            .table-mobile-view tr:active {
+                background-color: var(--bs-gray-800);
+            }
+
+            .category-pill {
+                background: var(--bs-gray-800);
+            }
+
+            .insight-card {
+                background: var(--bs-gray-800);
+            }
+        }
+
+        /* Better Grid Layout */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Smoother Animations */
+        @media (prefers-reduced-motion: no-preference) {
+            .stat-card, .goal-item, .recurring-item, .insight-card {
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .category-pill {
+                transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .floating-menu .sub-buttons .btn {
+                transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+        }
+
+        /* Better Form Layout */
+        @media (min-width: 768px) {
+            .expense-form .row {
+                margin: 0 -0.5rem;
+            }
+
+            .expense-form .col-md-6 {
+                padding: 0 0.5rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .gradient-bg {
+                background: none !important;
+                color: black !important;
+                padding: 1rem 0;
+            }
+
+            .stat-card {
+                break-inside: avoid;
+                border: 1px solid #ddd;
+            }
+
+            .floating-menu, .theme-toggle, .export-btn {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Theme Toggle Button -->
-    <button class="btn btn-outline-primary theme-toggle" id="themeToggle">
+    <button class="btn btn-outline-light theme-toggle" id="themeToggle">
         <i class="bi bi-moon-fill"></i>
     </button>
 
-    <div class="container">
-        <h1 class="text-center mb-4">
-            <i class="bi bi-wallet2"></i> Student Expense Tracker by Dhruv gupta
-        </h1>
-        
-        <!-- Stats Cards -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <i class="bi bi-wallet"></i>
-                <div class="stat-card-content">
-                    <h4>Total Expenses</h4>
-                    <h2>₹<span id="totalAmount">0</span></h2>
+    <!-- Gradient Header Section -->
+    <div class="gradient-bg">
+        <div class="container">
+            <h1 class="text-center mb-4">
+                <i class="bi bi-wallet2"></i> Student Expense Tracker by Dhruv 
+            </h1>
+            
+            <!-- Stats Cards -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <i class="bi bi-wallet"></i>
+                    <div class="stat-card-content">
+                        <h4>Total Expenses</h4>
+                        <h2>₹<span id="totalAmount">0</span></h2>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-card">
-                <i class="bi bi-calendar-month"></i>
-                <div class="stat-card-content">
-                    <h4>This Month</h4>
-                    <h2>₹<span id="monthlyAmount">0</span></h2>
+                <div class="stat-card">
+                    <i class="bi bi-calendar-month"></i>
+                    <div class="stat-card-content">
+                        <h4>This Month</h4>
+                        <h2>₹<span id="monthlyAmount">0</span></h2>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-card">
-                <i class="bi bi-clock"></i>
-                <div class="stat-card-content">
-                    <h4>Today</h4>
-                    <h2>₹<span id="todayAmount">0</span></h2>
+                <div class="stat-card">
+                    <i class="bi bi-clock"></i>
+                    <div class="stat-card-content">
+                        <h4>Today</h4>
+                        <h2>₹<span id="todayAmount">0</span></h2>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Charts -->
-        <div class="chart-container">
-            <canvas id="expenseChart"></canvas>
+    <div class="container">
+        <!-- Budget Section -->
+        <div class="budget-section">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3><i class="bi bi-piggy-bank"></i> Monthly Budget</h3>
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#budgetModal">
+                    <i class="bi bi-gear"></i> Set Budget
+                </button>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-primary" id="budgetProgress" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>Spent: ₹<span id="spentAmount">0</span></span>
+                <span>Budget: ₹<span id="budgetAmount">0</span></span>
+            </div>
+        </div>
+
+        <!-- Date Range Filter -->
+        <div class="date-range">
+            <input type="date" class="form-control" id="startDate">
+            <input type="date" class="form-control" id="endDate">
+            <button class="btn btn-primary" id="applyDateFilter">Apply</button>
+        </div>
+
+        <!-- Category Quick Filters -->
+        <div class="category-pills" id="categoryPills">
+            <button class="category-pill active" data-category="">All</button>
+            <button class="category-pill" data-category="books">Books</button>
+            <button class="category-pill" data-category="food">Food</button>
+            <button class="category-pill" data-category="transport">Transport</button>
+            <button class="category-pill" data-category="entertainment">Entertainment</button>
+            <button class="category-pill" data-category="utilities">Utilities</button>
+            <button class="category-pill" data-category="shopping">Shopping</button>
+            <button class="category-pill" data-category="health">Health</button>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
         </div>
 
         <!-- Expense Form -->
@@ -393,6 +839,33 @@
                 </table>
             </div>
         </div>
+
+        <!-- Export Button -->
+        <button class="btn btn-primary export-btn" id="exportBtn" title="Export Data">
+            <i class="bi bi-download"></i>
+        </button>
+    </div>
+
+    <!-- Budget Modal -->
+    <div class="modal fade" id="budgetModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Set Monthly Budget</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="monthlyBudget" placeholder="Enter budget amount">
+                        <label for="monthlyBudget">Monthly Budget (₹)</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveBudget">Save Budget</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -400,4 +873,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
