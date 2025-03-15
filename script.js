@@ -68,9 +68,14 @@ function updateChart() {
         return acc;
     }, {});
 
+    // Sort categories by amount for better visualization
+    const sortedCategories = Object.entries(categoryTotals)
+        .sort(([,a], [,b]) => b - a)
+        .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+
     // Prepare data for chart
-    const labels = Object.keys(categoryTotals);
-    const data = Object.values(categoryTotals);
+    const labels = Object.keys(sortedCategories);
+    const data = Object.values(sortedCategories);
 
     // Define colors for categories
     const colors = [
@@ -85,18 +90,23 @@ function updateChart() {
 
     // Create new chart with responsive options
     myChart = new Chart(ctx, {
-        type: 'doughnut',
+        type: isMobile ? 'pie' : 'doughnut',
         data: {
             labels: labels,
             datasets: [{
                 data: data,
                 backgroundColor: colors.slice(0, labels.length),
-                borderWidth: 1
+                borderWidth: 2,
+                borderColor: getComputedStyle(document.documentElement)
+                    .getPropertyValue('--bs-body-bg').trim()
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: !isMobile,
+            maintainAspectRatio: false,
+            layout: {
+                padding: isMobile ? 10 : 20
+            },
             plugins: {
                 legend: {
                     position: isMobile ? 'bottom' : 'right',
@@ -105,6 +115,15 @@ function updateChart() {
                         padding: isMobile ? 10 : 20,
                         font: {
                             size: isMobile ? 10 : 12
+                        },
+                        generateLabels: (chart) => {
+                            const data = chart.data;
+                            return data.labels.map((label, i) => ({
+                                text: `${label} (₹${data.datasets[0].data[i].toFixed(2)})`,
+                                fillStyle: data.datasets[0].backgroundColor[i],
+                                hidden: false,
+                                index: i
+                            }));
                         }
                     }
                 },
@@ -112,7 +131,22 @@ function updateChart() {
                     display: true,
                     text: 'Expense Distribution by Category',
                     font: {
-                        size: isMobile ? 14 : 16
+                        size: isMobile ? 14 : 16,
+                        weight: 'bold'
+                    },
+                    padding: {
+                        top: 10,
+                        bottom: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const value = context.raw;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `₹${value.toFixed(2)} (${percentage}%)`;
+                        }
                     }
                 }
             }
@@ -166,18 +200,6 @@ function deleteExpense(id) {
     }
 }
 
-// Show alert message
-function showAlert(message, type) {
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type} alert-dismissible fade show`;
-    alert.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    expenseForm.insertAdjacentElement('beforebegin', alert);
-    setTimeout(() => alert.remove(), 3000);
-}
-
 // Filter and search expenses
 function filterExpenses() {
     const searchTerm = searchExpense.value.toLowerCase();
@@ -198,31 +220,91 @@ function displayExpenses() {
     const filteredExpenses = filterExpenses();
     filteredExpenses.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+    if (filteredExpenses.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `
+            <td colspan="7" class="text-center py-5">
+                <i class="bi bi-inbox text-muted" style="font-size: 2.5rem;"></i>
+                <p class="mt-3 mb-0 text-muted">No expenses found</p>
+                <button class="btn btn-primary mt-3" onclick="document.getElementById('expenseTitle').focus()">
+                    <i class="bi bi-plus-lg"></i> Add Your First Expense
+                </button>
+            </td>
+        `;
+        expenseTableBody.appendChild(emptyRow);
+        return;
+    }
+
     filteredExpenses.forEach(expense => {
         const row = document.createElement('tr');
         const isMobile = window.innerWidth <= 768;
         
         if (isMobile) {
             row.innerHTML = `
-                <td data-label="Date">${new Date(expense.date).toLocaleDateString()}</td>
-                <td data-label="Title">${expense.title}</td>
-                <td data-label="Category"><span class="badge bg-primary">${expense.category}</span></td>
-                <td data-label="Payment"><span class="badge bg-secondary">${expense.paymentMode}</span></td>
-                <td data-label="Amount">₹${expense.amount.toFixed(2)}</td>
-                <td data-label="Notes">${expense.notes || '-'}</td>
+                <td data-label="Date">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar-date me-2"></i>
+                        ${new Date(expense.date).toLocaleDateString()}
+                    </div>
+                </td>
+                <td data-label="Title">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-card-text me-2"></i>
+                        ${expense.title}
+                    </div>
+                </td>
+                <td data-label="Category">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-tag me-2"></i>
+                        <span class="badge bg-primary">${expense.category}</span>
+                    </div>
+                </td>
+                <td data-label="Payment">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-credit-card me-2"></i>
+                        <span class="badge bg-secondary">${expense.paymentMode}</span>
+                    </div>
+                </td>
+                <td data-label="Amount">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-currency-rupee me-2"></i>
+                        <strong class="text-${expense.amount > 1000 ? 'danger' : 'success'}">
+                            ₹${expense.amount.toFixed(2)}
+                        </strong>
+                    </div>
+                </td>
+                <td data-label="Notes">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-sticky me-2"></i>
+                        <span class="text-truncate" style="max-width: 200px;" title="${expense.notes || '-'}">
+                            ${expense.notes || '-'}
+                        </span>
+                    </div>
+                </td>
                 <td data-label="Action">
-                    <button class="btn btn-danger btn-sm" onclick="deleteExpense(${expense.id})">
+                    <button class="btn btn-danger btn-sm w-100" 
+                            onclick="deleteExpense(${expense.id})"
+                            style="touch-action: manipulation;">
                         <i class="bi bi-trash"></i> Delete
                     </button>
                 </td>
             `;
+
+            // Add touch feedback
+            row.style.cursor = 'pointer';
+            row.addEventListener('touchstart', () => {
+                row.style.backgroundColor = 'var(--bs-gray-200)';
+            });
+            row.addEventListener('touchend', () => {
+                row.style.backgroundColor = '';
+            });
         } else {
             row.innerHTML = `
                 <td>${new Date(expense.date).toLocaleDateString()}</td>
                 <td>${expense.title}</td>
                 <td><span class="badge bg-primary">${expense.category}</span></td>
                 <td><span class="badge bg-secondary">${expense.paymentMode}</span></td>
-                <td>₹${expense.amount.toFixed(2)}</td>
+                <td><strong>₹${expense.amount.toFixed(2)}</strong></td>
                 <td>${expense.notes || '-'}</td>
                 <td>
                     <button class="btn btn-danger btn-sm" onclick="deleteExpense(${expense.id})">
@@ -231,7 +313,18 @@ function displayExpenses() {
                 </td>
             `;
         }
+
+        // Add animation to new rows
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(20px)';
         expenseTableBody.appendChild(row);
+
+        // Trigger animation
+        setTimeout(() => {
+            row.style.transition = 'all 0.3s ease';
+            row.style.opacity = '1';
+            row.style.transform = 'translateY(0)';
+        }, 50);
     });
 }
 
@@ -254,4 +347,63 @@ window.addEventListener('resize', () => {
         displayExpenses();
         updateChart();
     }, 250);
+});
+
+// Enhanced alert message with better mobile support
+function showAlert(message, type) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alert.style.cssText = `
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1050;
+        min-width: 280px;
+        max-width: 90%;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        border-radius: 10px;
+    `;
+    
+    alert.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            ${message}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    // Add animation
+    alert.style.opacity = '0';
+    alert.style.transform = 'translate(-50%, -20px)';
+    
+    setTimeout(() => {
+        alert.style.transition = 'all 0.3s ease';
+        alert.style.opacity = '1';
+        alert.style.transform = 'translate(-50%, 0)';
+    }, 50);
+
+    setTimeout(() => {
+        alert.style.opacity = '0';
+        alert.style.transform = 'translate(-50%, -20px)';
+        setTimeout(() => alert.remove(), 300);
+    }, 3000);
+}
+
+// Handle scroll for sticky search/filter
+let lastScrollTop = 0;
+window.addEventListener('scroll', () => {
+    const searchFilter = document.querySelector('.search-filter-container');
+    if (!searchFilter) return;
+
+    const st = window.pageYOffset || document.documentElement.scrollTop;
+    if (st > lastScrollTop) {
+        // Scrolling down
+        searchFilter.style.transform = 'translateY(-100%)';
+    } else {
+        // Scrolling up
+        searchFilter.style.transform = 'translateY(0)';
+    }
+    lastScrollTop = st <= 0 ? 0 : st;
 });
